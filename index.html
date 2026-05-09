@@ -5,21 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>J.A.R.V.I.S</title>
+<title>J.A.R.V.I.S · Grok IA</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;background:#000;overflow-x:hidden}
   body{font-family:'Share Tech Mono',monospace;color:#00d4ff;background:linear-gradient(180deg,#000810 0%,#001122 100%);min-height:100vh}
-  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,212,255,0.025) 40px,rgba(0,212,255,0.025) 41px);pointer-events:none;z-index:0}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(0,212,255,0.02) 40px,rgba(0,212,255,0.02) 41px);pointer-events:none;z-index:0}
 
-  .hud{position:relative;z-index:1;padding:20px 16px 40px;max-width:480px;margin:0 auto}
+  .hud{position:relative;z-index:1;padding:20px 16px 60px;max-width:520px;margin:0 auto}
 
   /* HEADER */
   .header{text-align:center;margin-bottom:20px}
-  .header h1{font-family:'Orbitron',sans-serif;font-size:30px;font-weight:900;color:#00d4ff;letter-spacing:10px;text-shadow:0 0 30px rgba(0,212,255,0.6)}
+  .header h1{font-family:'Orbitron',sans-serif;font-size:30px;font-weight:900;color:#00d4ff;letter-spacing:10px;text-shadow:0 0 30px rgba(0,212,255,0.5)}
   .header p{font-size:10px;color:#0088aa;letter-spacing:5px;margin-top:5px}
   .header .version{font-size:9px;color:#004466;letter-spacing:3px;margin-top:3px}
+
+  /* API KEY SETUP */
+  .api-setup{background:rgba(170,68,255,0.06);border:1px solid rgba(170,68,255,0.3);border-radius:8px;padding:16px;margin-bottom:18px}
+  .api-setup .api-title{font-size:10px;color:#8844cc;letter-spacing:3px;margin-bottom:10px;display:block}
+  .api-setup input{width:100%;background:rgba(0,0,0,0.7);border:1px solid rgba(170,68,255,0.3);color:#cc88ff;font-family:'Share Tech Mono',monospace;font-size:12px;padding:9px 12px;border-radius:5px;outline:none;margin-bottom:10px;letter-spacing:1px}
+  .api-setup input::placeholder{color:#44226688}
+  .api-setup input:focus{border-color:rgba(170,68,255,0.6)}
+  .api-save{background:rgba(170,68,255,0.15);border:1px solid rgba(170,68,255,0.4);color:#cc88ff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 20px;border-radius:4px;cursor:pointer;letter-spacing:2px;width:100%;transition:background 0.2s}
+  .api-save:active{background:rgba(170,68,255,0.25)}
+  .api-status{font-size:9px;text-align:center;margin-top:6px;letter-spacing:2px;color:#442266}
+  .api-status.ok{color:#44aa66}
+  .api-status.err{color:#aa4444}
 
   /* STATUS BAR */
   .status-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px}
@@ -35,6 +47,7 @@
   .orb:active{transform:scale(0.93)}
   .orb.listening{border-color:#00ff88;box-shadow:0 0 40px rgba(0,255,136,0.35),inset 0 0 25px rgba(0,255,136,0.12);animation:pulseGreen 1s ease-in-out infinite}
   .orb.speaking{border-color:#ff7700;box-shadow:0 0 40px rgba(255,119,0,0.35),inset 0 0 25px rgba(255,119,0,0.12);animation:pulseOrange 0.6s ease-in-out infinite}
+  .orb.thinking{border-color:#aa44ff;box-shadow:0 0 40px rgba(170,68,255,0.35),inset 0 0 25px rgba(170,68,255,0.12);animation:pulseViolet 0.8s ease-in-out infinite}
   .orb-emoji{font-size:38px;line-height:1}
   .orb-state-txt{font-size:9px;color:#0077aa;letter-spacing:2px}
   .orb-label{margin-top:10px;font-size:9px;color:#004466;letter-spacing:4px}
@@ -42,8 +55,9 @@
   @keyframes spinRing{from{transform:rotate(0)}to{transform:rotate(360deg)}}
   @keyframes pulseGreen{0%,100%{box-shadow:0 0 20px rgba(0,255,136,0.2),inset 0 0 15px rgba(0,255,136,0.08)}50%{box-shadow:0 0 60px rgba(0,255,136,0.5),inset 0 0 30px rgba(0,255,136,0.18)}}
   @keyframes pulseOrange{0%,100%{box-shadow:0 0 20px rgba(255,119,0,0.2),inset 0 0 15px rgba(255,119,0,0.08)}50%{box-shadow:0 0 60px rgba(255,119,0,0.5),inset 0 0 30px rgba(255,119,0,0.18)}}
+  @keyframes pulseViolet{0%,100%{box-shadow:0 0 20px rgba(170,68,255,0.2),inset 0 0 15px rgba(170,68,255,0.08)}50%{box-shadow:0 0 60px rgba(170,68,255,0.5),inset 0 0 30px rgba(170,68,255,0.18)}}
 
-  /* TRANSCRIPT / RESPONSE BOXES */
+  /* BOXES */
   .box{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.14);border-radius:8px;padding:13px 14px;margin-bottom:12px;position:relative;min-height:52px}
   .box .tag{position:absolute;top:-8px;left:12px;background:#000d1a;padding:0 8px;font-size:9px;color:#006688;letter-spacing:3px}
   .box p{font-size:13px;color:#00d4ff;line-height:1.6}
@@ -51,14 +65,15 @@
   .box-jarvis.visible{display:block}
   .box-jarvis .tag{color:#007744}
   .box-jarvis p{color:#00ff88}
+  .typing-cursor::after{content:'▌';animation:blink 0.7s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
-  /* TASKS SECTION */
+  /* TASKS */
   .section-header{display:flex;justify-content:space-between;align-items:center;margin:16px 0 10px}
   .section-title{font-family:'Orbitron',sans-serif;font-size:11px;color:#0088aa;letter-spacing:3px}
   .btn-add{background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.28);color:#00d4ff;font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 14px;border-radius:4px;cursor:pointer;letter-spacing:1px;transition:background 0.2s}
   .btn-add:active{background:rgba(0,212,255,0.18)}
 
-  /* ADD FORM */
   .add-form{background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.18);border-radius:8px;padding:14px;margin-bottom:12px;display:none}
   .add-form.open{display:block}
   .add-form input{width:100%;background:rgba(0,0,0,0.6);border:1px solid rgba(0,212,255,0.28);color:#00d4ff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:9px 12px;border-radius:5px;outline:none;margin-bottom:10px}
@@ -71,30 +86,30 @@
   .p-btn.sel-baja{border-color:#00ff88;color:#00ff88;background:rgba(0,255,136,0.08)}
   .form-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .btn-ok{background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.35);color:#00d4ff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px;border-radius:4px;cursor:pointer;letter-spacing:1px}
-  .btn-ok:active{background:rgba(0,212,255,0.22)}
   .btn-cancel{background:rgba(255,68,68,0.07);border:1px solid rgba(255,68,68,0.25);color:#ff6666;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px;border-radius:4px;cursor:pointer;letter-spacing:1px}
-  .btn-cancel:active{background:rgba(255,68,68,0.14)}
 
-  /* TASK ITEMS */
   .task-item{background:rgba(0,212,255,0.03);border:1px solid rgba(0,212,255,0.13);border-radius:6px;padding:11px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:opacity 0.2s}
   .task-item.done{opacity:0.35}
   .task-item.done .task-text{text-decoration:line-through;color:#005566}
   .task-check{width:20px;height:20px;border:1px solid rgba(0,212,255,0.35);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#00d4ff;transition:background 0.15s}
   .task-item.done .task-check{background:rgba(0,212,255,0.12)}
   .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-  .d-alta{background:#ff4444}
-  .d-media{background:#ffaa00}
-  .d-baja{background:#00ff88}
+  .d-alta{background:#ff4444}.d-media{background:#ffaa00}.d-baja{background:#00ff88}
   .task-text{flex:1;font-size:13px;color:#00d4ff;line-height:1.4}
   .task-del{color:#ff3333;cursor:pointer;font-size:18px;padding:2px 6px;flex-shrink:0;line-height:1}
   .empty{text-align:center;padding:22px;color:#003344;font-size:11px;letter-spacing:3px}
 
-  /* COMMANDS HINT */
+  /* HINT */
   .hint-box{background:rgba(0,0,0,0.3);border:1px solid rgba(0,212,255,0.08);border-radius:6px;padding:12px 14px;margin-top:16px;font-size:10px;color:#003355;line-height:2}
   .hint-box .hl{color:#006688}
-  .hint-box .title{color:#004466;letter-spacing:2px;display:block;margin-bottom:4px;font-size:9px}
+  .hint-box .hltitle{color:#004466;letter-spacing:2px;display:block;margin-bottom:4px;font-size:9px}
 
-  /* SCROLLBAR */
+  .text-input-area{margin-bottom:4px}
+  .text-input-area input{width:100%;background:rgba(0,0,0,0.6);border:1px solid rgba(0,212,255,0.28);color:#00d4ff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:9px 12px;border-radius:5px;outline:none;flex:1}
+  .text-input-area input::placeholder{color:#003344}
+  .text-input-area input:focus{border-color:rgba(0,212,255,0.55)}
+  .btn-send{background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.35);color:#00d4ff;font-family:'Share Tech Mono',monospace;font-size:16px;padding:9px 16px;border-radius:5px;cursor:pointer;flex-shrink:0;transition:background 0.2s}
+  .btn-send:active{background:rgba(0,212,255,0.25)}
   ::-webkit-scrollbar{width:4px}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:2px}
@@ -106,7 +121,15 @@
   <div class="header">
     <h1>J.A.R.V.I.S</h1>
     <p>SISTEMA DE ASISTENCIA PERSONAL</p>
-    <div class="version">VERSIÓN 1.0 · IA ACTIVADA</div>
+    <div class="version">VERSIÓN 2.0 · GROK xAI INTEGRADO</div>
+  </div>
+
+  <!-- API KEY SETUP -->
+  <div class="api-setup" id="api-setup">
+    <span class="api-title">🔑 CONFIGURAR API KEY DE GROK (xAI)</span>
+    <input type="password" id="api-key-input" placeholder="gsk_..." autocomplete="off" />
+    <button class="api-save" onclick="saveApiKey()">✓ GUARDAR Y ACTIVAR GROK</button>
+    <div class="api-status" id="api-status">Ingresa tu API Key de xAI para activar Grok</div>
   </div>
 
   <div class="status-bar">
@@ -116,23 +139,31 @@
   </div>
 
   <div class="orb-section">
-    <div class="orb-ring">
-      <div class="orb" id="orb" onclick="toggleListen()">
+    <div class="orb-ring" onclick="orbClick()" style="cursor:pointer">
+      <div class="orb" id="orb" onclick="orbClick()">
         <span class="orb-emoji" id="orb-icon">🎙️</span>
         <span class="orb-state-txt" id="orb-txt">ACTIVAR</span>
       </div>
     </div>
-    <div class="orb-label">TOCA EL ORBE PARA HABLAR</div>
+    <div class="orb-label" id="orb-label">TOCA EL ORBE PARA HABLAR</div>
   </div>
 
   <div class="box">
     <span class="tag">TÚ DIJISTE</span>
-    <p id="transcript">Toca el orbe y di un comando a Jarvis...</p>
+    <p id="transcript">Configura tu API Key y toca el orbe para comenzar...</p>
   </div>
 
   <div class="box box-jarvis" id="jarvis-box">
-    <span class="tag">▸ JARVIS</span>
+    <span class="tag">▸ JARVIS · GROK</span>
     <p id="jarvis-resp"></p>
+  </div>
+
+  <!-- TEXT INPUT FALLBACK -->
+  <div class="text-input-area" id="text-area">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input type="text" id="cmd-input" placeholder="Escribe un comando o pregunta..." autocomplete="off" />
+      <button class="btn-send" id="btn-send" onclick="sendText()">▶</button>
+    </div>
   </div>
 
   <div class="section-header">
@@ -156,67 +187,119 @@
   <div id="task-list"></div>
 
   <div class="hint-box">
-    <span class="title">💬 COMANDOS DE VOZ DISPONIBLES</span>
+    <span class="hltitle">💬 COMANDOS DE VOZ DISPONIBLES</span>
     <div>"<span class="hl">¿Qué tengo pendiente?</span>" → lee todas las tareas</div>
     <div>"<span class="hl">Agregar tarea [texto]</span>" → crea tarea de alta prioridad</div>
-    <div>"<span class="hl">Completar tarea 1</span>" → marca la tarea como lista</div>
-    <div>"<span class="hl">¿Qué hora es?</span>" o "<span class="hl">¿Qué día es hoy?</span>"</div>
-    <div>"<span class="hl">Hola Jarvis</span>" → saludo personalizado</div>
+    <div>"<span class="hl">Completar tarea 1</span>" → marca tarea como lista</div>
+    <div>"<span class="hl">¿Qué hora es? / ¿Qué día es?</span>"</div>
+    <div>"<span class="hl">Hola Jarvis</span>" → saludo personalizado con IA</div>
     <div>"<span class="hl">Borrar todo</span>" → elimina todas las tareas</div>
+    <div>"<span class="hl">Cualquier pregunta libre</span>" → Claude responde</div>
   </div>
 
 </div>
 
 <script>
-// ── ESTADO ──────────────────────────────────────────
-let tasks = JSON.parse(localStorage.getItem('jarvis_v1') || '[]');
+// ── ESTADO ──
+let tasks = JSON.parse(localStorage.getItem('jarvis_v2') || '[]');
 let currentPrio = 'alta';
 let recognition = null;
 let isListening = false;
 const synth = window.speechSynthesis;
+let conversationHistory = [];
+let apiKey = localStorage.getItem('jarvis_apikey') || '';
 
-// ── GUARDAR / RENDERIZAR ─────────────────────────────
-function save() { localStorage.setItem('jarvis_v1', JSON.stringify(tasks)); }
+// ── API KEY ──
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('gsk_')) {
+    setApiStatus('⚠ Formato inválido. Debe empezar con gsk_', 'err');
+    return;
+  }
+  apiKey = val;
+  localStorage.setItem('jarvis_apikey', apiKey);
+  document.getElementById('api-key-input').value = '••••••••••••••••••••••••••••••••';
+  setApiStatus('✓ API KEY GUARDADA · GROK ACTIVADO', 'ok');
+  document.getElementById('sys-st').textContent = 'GROK ACTIVO';
+  setTimeout(() => {
+    const now = new Date();
+    const h = now.getHours();
+    const sal = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+    const p = tasks.filter(t => !t.done).length;
+    const intro = p > 0
+      ? `${sal}. Jarvis 2.0 en línea con inteligencia artificial real. Tienes ${p} tarea${p > 1 ? 's' : ''} pendiente${p > 1 ? 's' : ''}. Toca el orbe para hablar.`
+      : `${sal}. Jarvis 2.0 listo. IA real activada. Sin tareas pendientes. Toca el orbe para comenzar.`;
+    speak(intro);
+    showJarvis(intro);
+  }, 500);
+}
+
+function setApiStatus(msg, type) {
+  const el = document.getElementById('api-status');
+  el.textContent = msg;
+  el.className = 'api-status' + (type ? ' ' + type : '');
+}
+
+// Cargar key guardada al inicio
+window.addEventListener('DOMContentLoaded', () => {
+  if (apiKey) {
+    document.getElementById('api-key-input').value = '••••••••••••••••••••••••••••••••';
+    setApiStatus('✓ API KEY GUARDADA · GROK ACTIVADO', 'ok');
+    document.getElementById('sys-st').textContent = 'GROK ACTIVO';
+  }
+  document.getElementById('task-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addTask();
+  });
+  document.getElementById('cmd-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendText();
+  });
+  render();
+  if (apiKey) {
+    setTimeout(() => {
+      const now = new Date();
+      const h = now.getHours();
+      const sal = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+      const p = tasks.filter(t => !t.done).length;
+      const intro = p > 0
+        ? `${sal}. Jarvis en línea. Tienes ${p} tarea${p > 1 ? 's' : ''} pendiente${p > 1 ? 's' : ''}. Toca el orbe para hablar.`
+        : `${sal}. Jarvis listo. Sin tareas pendientes. Toca el orbe para comenzar.`;
+      speak(intro);
+      showJarvis(intro);
+    }, 1000);
+  }
+});
+
+// ── GUARDAR / RENDER ──
+function save() { localStorage.setItem('jarvis_v2', JSON.stringify(tasks)); }
 
 function render() {
   const list = document.getElementById('task-list');
   const pending = tasks.filter(t => !t.done);
   document.getElementById('task-ct').textContent = pending.length;
-
-  if (tasks.length === 0) {
-    list.innerHTML = '<div class="empty">SIN TAREAS · SISTEMA LIBRE</div>';
-    return;
-  }
-
+  if (tasks.length === 0) { list.innerHTML = '<div class="empty">SIN TAREAS · SISTEMA LIBRE</div>'; return; }
   const order = { alta: 0, media: 1, baja: 2 };
   const sorted = [...tasks].sort((a, b) => order[a.prio] - order[b.prio]);
-
   list.innerHTML = sorted.map(t => {
     const i = tasks.indexOf(t);
     const dc = t.prio === 'alta' ? 'd-alta' : t.prio === 'media' ? 'd-media' : 'd-baja';
-    return `
-      <div class="task-item ${t.done ? 'done' : ''}">
-        <div class="task-check" onclick="toggleDone(${i})">${t.done ? '✓' : ''}</div>
-        <div class="dot ${dc}"></div>
-        <div class="task-text">${escHtml(t.text)}</div>
-        <div class="task-del" onclick="delTask(${i})">×</div>
-      </div>`;
+    return `<div class="task-item ${t.done ? 'done' : ''}">
+      <div class="task-check" onclick="toggleDone(${i})">${t.done ? '✓' : ''}</div>
+      <div class="dot ${dc}"></div>
+      <div class="task-text">${esc(t.text)}</div>
+      <div class="task-del" onclick="delTask(${i})">×</div>
+    </div>`;
   }).join('');
 }
 
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function toggleDone(i) { tasks[i].done = !tasks[i].done; save(); render(); }
-
 function delTask(i) { tasks.splice(i, 1); save(); render(); }
 
-// ── FORMULARIO ───────────────────────────────────────
+// ── FORMULARIO ──
 function toggleForm() {
   const f = document.getElementById('add-form');
   f.classList.toggle('open');
-  if (f.classList.contains('open')) {
-    document.getElementById('task-input').focus();
-  }
+  if (f.classList.contains('open')) document.getElementById('task-input').focus();
 }
 
 function setPrio(p) {
@@ -237,82 +320,200 @@ function addTask() {
   speak('Tarea agregada: ' + text);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('task-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') addTask();
-  });
-});
-
-// ── HABLAR ───────────────────────────────────────────
+// ── HABLAR ──
 function speak(text) {
   if (!synth) return;
   synth.cancel();
-
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'es-ES';
-  u.rate = 0.92;
-  u.pitch = 0.75;
-  u.volume = 1;
-
-  // Intentar voz masculina en español
+  u.lang = 'es-ES'; u.rate = 0.92; u.pitch = 0.75; u.volume = 1;
   const tryVoice = () => {
     const voices = synth.getVoices();
-    const esM = voices.find(v => v.lang.startsWith('es') && /male|masculin|jorge|pablo|miguel/i.test(v.name))
-              || voices.find(v => v.lang.startsWith('es'))
-              || voices.find(v => v.lang.startsWith('en'));
-    if (esM) u.voice = esM;
+    const v = voices.find(v => v.lang.startsWith('es') && /male|masculin|jorge|pablo|miguel/i.test(v.name))
+            || voices.find(v => v.lang.startsWith('es'))
+            || voices.find(v => v.lang.startsWith('en'));
+    if (v) u.voice = v;
   };
   tryVoice();
-  if (synth.getVoices().length === 0) {
-    synth.addEventListener('voiceschanged', tryVoice, { once: true });
-  }
-
+  if (synth.getVoices().length === 0) synth.addEventListener('voiceschanged', tryVoice, { once: true });
   setOrbState('speaking');
-  showJarvis(text);
-
   u.onend = () => { if (!isListening) setOrbState('idle'); };
   u.onerror = () => { if (!isListening) setOrbState('idle'); };
-
   synth.speak(u);
 }
 
-function showJarvis(text) {
+function showJarvis(text, typing = false) {
   const box = document.getElementById('jarvis-box');
-  document.getElementById('jarvis-resp').textContent = text;
+  const p = document.getElementById('jarvis-resp');
   box.classList.add('visible');
+  if (typing) { p.classList.add('typing-cursor'); p.textContent = text; }
+  else { p.classList.remove('typing-cursor'); p.textContent = text; }
 }
 
-// ── ORB ESTADOS ──────────────────────────────────────
+// ── ORB ESTADOS ──
 function setOrbState(state) {
   const orb = document.getElementById('orb');
   const icon = document.getElementById('orb-icon');
   const txt = document.getElementById('orb-txt');
   const vs = document.getElementById('voice-st');
-
-  orb.className = 'orb' + (state === 'listening' ? ' listening' : state === 'speaking' ? ' speaking' : '');
-
+  orb.className = 'orb' + (state === 'listening' ? ' listening' : state === 'speaking' ? ' speaking' : state === 'thinking' ? ' thinking' : '');
   if (state === 'listening') { icon.textContent = '👂'; txt.textContent = 'OYENDO'; vs.textContent = 'ACTIVO'; }
   else if (state === 'speaking') { icon.textContent = '🔊'; txt.textContent = 'HABLANDO'; vs.textContent = 'HABLA'; }
+  else if (state === 'thinking') { icon.textContent = '🧠'; txt.textContent = 'PENSANDO'; vs.textContent = 'IA...'; }
   else { icon.textContent = '🎙️'; txt.textContent = 'ACTIVAR'; vs.textContent = 'LISTO'; }
 }
 
-// ── RECONOCIMIENTO DE VOZ ────────────────────────────
-function toggleListen() {
-  if (isListening) { stopListen(); return; }
-
-  const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SRClass) {
-    showJarvis('Tu navegador no soporta reconocimiento de voz. Usa Chrome en Android o Safari en iPhone.');
-    speak('Tu navegador no soporta reconocimiento de voz. Te recomiendo usar Chrome.');
-    return;
+// ── CLAUDE API ──
+async function askClaude(userMessage) {
+  if (!apiKey) {
+    const m = 'Por favor configura tu API Key de Anthropic para activar la inteligencia artificial.';
+    showJarvis(m); speak(m); return;
   }
 
+  const now = new Date();
+  const pending = tasks.filter(t => !t.done);
+  const taskList = tasks.length > 0
+    ? tasks.map((t, i) => `${i + 1}. [${t.prio.toUpperCase()}] ${t.text} - ${t.done ? 'COMPLETADA' : 'PENDIENTE'}`).join('\n')
+    : 'Sin tareas registradas.';
+
+  const systemPrompt = `Eres J.A.R.V.I.S., el asistente de IA personal del usuario. Hablas en español, de forma concisa, inteligente y con un tono sofisticado pero amigable, como el JARVIS de Iron Man.
+
+Contexto actual del sistema:
+- Fecha y hora: ${now.toLocaleString('es-ES')}
+- Tareas totales: ${tasks.length} (${pending.length} pendientes, ${tasks.filter(t => t.done).length} completadas)
+- Lista de tareas:
+${taskList}
+
+INSTRUCCIONES ESPECIALES:
+- Si el usuario quiere AGREGAR una tarea, incluye al final de tu respuesta: [ACCION:AGREGAR:texto de la tarea:prioridad] donde prioridad es alta/media/baja
+- Si quiere COMPLETAR una tarea por número, incluye: [ACCION:COMPLETAR:numero]
+- Si quiere BORRAR TODO, incluye: [ACCION:BORRAR_TODO]
+- Tus respuestas deben ser CORTAS (máximo 3 oraciones) ya que se leen en voz alta.
+- Habla en primera persona como JARVIS. Sé inteligente y preciso.
+- Las acciones van al final, separadas del texto hablado.`;
+
+  conversationHistory.push({ role: 'user', content: userMessage });
+
+  try {
+    setOrbState('thinking');
+    showJarvis('Procesando con Grok...', true);
+
+    const messagesWithSystem = [
+      { role: 'system', content: systemPrompt },
+      ...conversationHistory
+    ];
+
+    const res = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + apiKey
+      },
+      body: JSON.stringify({
+        model: 'grok-3-latest',
+        max_tokens: 1000,
+        messages: messagesWithSystem
+      })
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const fullText = data.choices?.[0]?.message?.content || '';
+
+    // Ejecutar acciones
+    const actionMatch = fullText.match(/\[ACCION:([^\]]+)\]/);
+    let cleanText = fullText.replace(/\[ACCION:[^\]]+\]/g, '').trim();
+
+    if (actionMatch) {
+      const parts = actionMatch[1].split(':');
+      const action = parts[0];
+      if (action === 'AGREGAR' && parts[1]) {
+        const taskText = parts[1];
+        const prio = (parts[2] || 'alta').toLowerCase();
+        tasks.push({ text: taskText, prio: prio in { alta: 1, media: 1, baja: 1 } ? prio : 'alta', done: false, ts: Date.now() });
+        save(); render();
+      } else if (action === 'COMPLETAR' && parts[1]) {
+        const n = parseInt(parts[1]) - 1;
+        if (n >= 0 && n < tasks.length) { tasks[n].done = true; save(); render(); }
+      } else if (action === 'BORRAR_TODO') {
+        tasks = []; save(); render();
+      }
+    }
+
+    conversationHistory.push({ role: 'assistant', content: fullText });
+    if (conversationHistory.length > 20) conversationHistory = conversationHistory.slice(-20);
+
+    showJarvis(cleanText);
+    speak(cleanText);
+
+  } catch (err) {
+    const errMsg = 'Error al conectar con el núcleo IA: ' + err.message;
+    showJarvis(errMsg);
+    speak('Error al conectar con la IA. Verifica tu API Key o conexión a internet.');
+    setOrbState('idle');
+    conversationHistory.pop();
+  }
+}
+
+// ── ORB CLICK ──
+function orbClick() {
+  const inp = document.getElementById('cmd-input');
+  // Try voice first, fallback to text focus
+  const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const canVoice = SRClass && location.protocol !== 'file:' && location.protocol !== 'http:';
+  if (canVoice) {
+    toggleListen();
+  } else {
+    inp.focus();
+    inp.select();
+    setOrbState('idle');
+    document.getElementById('orb-label').textContent = 'ESCRIBE TU COMANDO ABAJO ↓';
+    // Flash the text input to draw attention
+    inp.style.borderColor = 'rgba(0,212,255,0.9)';
+    inp.style.boxShadow = '0 0 20px rgba(0,212,255,0.4)';
+    setTimeout(() => {
+      inp.style.borderColor = '';
+      inp.style.boxShadow = '';
+    }, 1200);
+  }
+}
+
+// ── TEXTO FALLBACK ──
+function sendText() {
+  const inp = document.getElementById('cmd-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  document.getElementById('transcript').textContent = text;
+  inp.value = '';
+  askClaude(text);
+}
+
+// ── VOZ ──
+function toggleListen() {
+  if (isListening) { stopListen(); return; }
+  const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SRClass) {
+    const m = 'Reconocimiento de voz no disponible. Usa el campo de texto abajo.';
+    showJarvis(m); speak(m);
+    document.getElementById('cmd-input').focus();
+    return;
+  }
+  // Chrome requires HTTPS for mic — detect and fallback
+  if (location.protocol === 'file:' || location.protocol === 'http:') {
+    const m = 'El micrófono requiere HTTPS. Usa el campo de texto para escribir tus comandos.';
+    showJarvis(m);
+    document.getElementById('cmd-input').focus();
+    document.getElementById('orb-label').textContent = 'USA EL CAMPO DE TEXTO ABAJO';
+    return;
+  }
   recognition = new SRClass();
   recognition.lang = 'es-ES';
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
-
   isListening = true;
   setOrbState('listening');
   document.getElementById('transcript').textContent = 'Escuchando... habla ahora';
@@ -321,7 +522,8 @@ function toggleListen() {
     const text = Array.from(e.results).map(r => r[0].transcript).join('');
     document.getElementById('transcript').textContent = text;
     if (e.results[e.results.length - 1].isFinal) {
-      processCommand(text);
+      stopListen();
+      askClaude(text);
     }
   };
 
@@ -329,147 +531,23 @@ function toggleListen() {
     const msgs = {
       'no-speech': 'No escuché nada. Intenta de nuevo.',
       'audio-capture': 'No pude acceder al micrófono.',
-      'not-allowed': 'Permiso de micrófono denegado. Actívalo en la configuración.',
+      'not-allowed': 'Permiso de micrófono denegado. Actívalo en configuración.',
       'network': 'Error de red. Verifica tu conexión.'
     };
     const m = msgs[e.error] || 'Error: ' + e.error;
     document.getElementById('transcript').textContent = m;
-    showJarvis(m);
-    stopListen();
+    showJarvis(m); stopListen();
   };
 
   recognition.onend = () => stopListen();
-
-  try { recognition.start(); }
-  catch(err) { stopListen(); }
+  try { recognition.start(); } catch (err) { stopListen(); }
 }
 
 function stopListen() {
   isListening = false;
-  if (recognition) { try { recognition.stop(); } catch(e) {} }
+  if (recognition) { try { recognition.stop(); } catch (e) {} }
   if (!synth.speaking) setOrbState('idle');
 }
-
-// ── PROCESAR COMANDOS ────────────────────────────────
-function processCommand(raw) {
-  const cmd = raw.toLowerCase().trim();
-  const now = new Date();
-  const pending = tasks.filter(t => !t.done);
-
-  // SALUDO
-  if (/^(hola|buenos|buenas|hey|qué tal|cómo estás)/i.test(cmd)) {
-    const h = now.getHours();
-    const sal = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
-    speak(`${sal}. Soy Jarvis, tu asistente personal. Tienes ${pending.length} tarea${pending.length !== 1 ? 's' : ''} pendiente${pending.length !== 1 ? 's' : ''}. ¿En qué te puedo ayudar?`);
-    return;
-  }
-
-  // LEER PENDIENTES
-  if (/pendiente|qu[eé] tengo|mis tareas|lista|tarea/.test(cmd) && !/agregar|añadir|nueva/.test(cmd)) {
-    if (pending.length === 0) {
-      speak('No tienes tareas pendientes. Estás al día, todo bajo control.');
-    } else {
-      const alta = pending.filter(t => t.prio === 'alta');
-      const media = pending.filter(t => t.prio === 'media');
-      const baja  = pending.filter(t => t.prio === 'baja');
-      let msg = `Tienes ${pending.length} tarea${pending.length > 1 ? 's' : ''} pendiente${pending.length > 1 ? 's' : ''}. `;
-      if (alta.length > 0) msg += `De alta prioridad: ${alta.map(t => t.text).join(', ')}. `;
-      if (media.length > 0) msg += `De prioridad media: ${media.map(t => t.text).join(', ')}. `;
-      if (baja.length > 0) msg += `De baja prioridad: ${baja.map(t => t.text).join(', ')}.`;
-      speak(msg);
-    }
-    return;
-  }
-
-  // AGREGAR TAREA
-  if (/agregar|añadir|nueva tarea|crear tarea|recordar/.test(cmd)) {
-    const m = raw.match(/(?:agregar|añadir|nueva tarea|crear tarea|recordar(?:me)?)\s+(?:que\s+)?(.+)/i);
-    if (m && m[1]) {
-      const text = m[1].trim();
-      tasks.push({ text, prio: 'alta', done: false, ts: Date.now() });
-      save(); render();
-      speak('Tarea de alta prioridad agregada: ' + text);
-    } else {
-      speak('¿Qué tarea deseas agregar? Di: agregar tarea, seguido del nombre.');
-    }
-    return;
-  }
-
-  // COMPLETAR TAREA
-  if (/completar|terminar|listo|hecho|marcar/.test(cmd)) {
-    const numM = cmd.match(/\d+/);
-    if (numM) {
-      const n = parseInt(numM[0]) - 1;
-      if (n >= 0 && n < tasks.length) {
-        tasks[n].done = true; save(); render();
-        speak(`Tarea ${n + 1} marcada como completada. Excelente trabajo.`);
-      } else {
-        speak('No encontré esa tarea. Verifica el número.');
-      }
-    } else if (pending.length > 0) {
-      const t = pending[0];
-      tasks[tasks.indexOf(t)].done = true; save(); render();
-      speak('Primera tarea completada: ' + t.text);
-    } else {
-      speak('No hay tareas pendientes para completar.');
-    }
-    return;
-  }
-
-  // ELIMINAR / BORRAR TODO
-  if (/borrar todo|eliminar todo|limpiar todo|borrar todas/.test(cmd)) {
-    const c = tasks.length;
-    tasks = []; save(); render();
-    speak(`Listo. ${c} tarea${c !== 1 ? 's' : ''} eliminada${c !== 1 ? 's' : ''}. Lista limpia.`);
-    return;
-  }
-
-  // HORA
-  if (/qu[eé] hora|dime la hora|hora es/.test(cmd)) {
-    const h = now.getHours();
-    const m = now.getMinutes();
-    const hs = h.toString();
-    const ms = m === 0 ? 'en punto' : `con ${m} minuto${m !== 1 ? 's' : ''}`;
-    speak(`Son las ${hs} horas ${ms}.`);
-    return;
-  }
-
-  // FECHA
-  if (/qu[eé] d[ií]a|fecha|d[ií]a es/.test(cmd)) {
-    const dias = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-    const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-    speak(`Hoy es ${dias[now.getDay()]} ${now.getDate()} de ${meses[now.getMonth()]} del ${now.getFullYear()}.`);
-    return;
-  }
-
-  // CUÁNTAS TAREAS
-  if (/cu[aá]ntas|cuántos|n[uú]mero de tareas/.test(cmd)) {
-    const t = tasks.length;
-    const p = pending.length;
-    speak(`Tienes ${t} tarea${t !== 1 ? 's' : ''} en total, de las cuales ${p} están pendientes y ${t - p} completadas.`);
-    return;
-  }
-
-  // RESPUESTA DESCONOCIDA
-  speak('No reconocí ese comando. Puedo leer tus pendientes, agregar o completar tareas, y decirte la hora. ¿En qué te ayudo?');
-}
-
-// ── INICIO ───────────────────────────────────────────
-render();
-
-window.addEventListener('load', () => {
-  // Saludo de bienvenida al abrir
-  setTimeout(() => {
-    const now = new Date();
-    const h = now.getHours();
-    const sal = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
-    const p = tasks.filter(t => !t.done).length;
-    const intro = p > 0
-      ? `${sal}. Jarvis en línea. Tienes ${p} tarea${p > 1 ? 's' : ''} pendiente${p > 1 ? 's' : ''}. Toca el orbe para activar los comandos de voz.`
-      : `${sal}. Jarvis listo. No tienes tareas pendientes. Toca el orbe para comenzar.`;
-    speak(intro);
-  }, 1000);
-});
 </script>
 </body>
 </html>
